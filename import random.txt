@@ -1,0 +1,36 @@
+import random
+from math import gcd
+
+def generate_key_pair(p, q):
+    n = p * q
+    phi = (p - 1) * (q - 1)
+
+    while True:
+        e = random.randrange(2, phi)
+        if gcd(e, phi) == 1:
+            break
+
+    d = multiplicative_inverse(e, phi)
+
+    return ((e, n), (d, n))
+
+def multiplicative_inverse(e, phi):
+    def extended_gcd(a, b):
+        if a == 0:
+            return (b, 0, 1)
+        else:
+            g, y, x = extended_gcd(b % a, a)
+            return (g, x - (b // a) * y, y)
+
+    g, x, y = extended_gcd(e, phi)
+    return x % phi
+
+def encrypt_RSA(plain_text, public_key):
+    e, n = public_key
+    cipher_text = [pow(ord(char), e, n) for char in plain_text]
+    return cipher_text
+
+def decrypt_RSA(cipher_text, private_key):
+    d, n = private_key
+    plain_text = [chr(pow(char, d, n)) for char in cipher_text]
+    return ''.join(plain_text)
